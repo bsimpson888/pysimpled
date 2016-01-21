@@ -1,0 +1,2 @@
+# pysimpled
+simple daemon framework
