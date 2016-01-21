@@ -8,8 +8,24 @@ import sys
 
 __author__ = 'Marco Bartel'
 
+class SimpleDaemonException(Exception):
+    def __init__(self, *args, **kwargs):
+        super(SimpleDaemonException, self).__init__(*args, **kwargs)
+
+
 class SimpleDaemonLogger(object):
+    class SimpleDaemonInnerLogger(object):
+        def __init__(self, logger, level):
+            self.logger = logger
+            self.level = level
+
+        def write(self, message):
+            # Only log if there is a message (not just a new line)
+            if message.rstrip() != "":
+                self.logger.log(self.level, message.rstrip())
+
     def __init__(self, logPath):
+
         self.logPath = logPath
         if not os.path.exists(os.path.dirname(self.logPath)):
             os.makedirs(os.path.dirname(self.logPath))
@@ -21,49 +37,60 @@ class SimpleDaemonLogger(object):
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
-        class SimpleDaemonInnerLogger(object):
-            def __init__(self, logger, level):
-                """Needs a logger and a logger level."""
-                self.logger = logger
-                self.level = level
-
-            def write(self, message):
-                # Only log if there is a message (not just a new line)
-                if message.rstrip() != "":
-                    self.logger.log(self.level, message.rstrip())
-
-
         # Replace stdout with logging to file at INFO level
-        sys.stdout = SimpleDaemonInnerLogger(logger, logging.INFO)
+        sys.stdout = self.SimpleDaemonInnerLogger(logger, logging.INFO)
         # Replace stderr with logging to file at ERROR level
-        sys.stderr = SimpleDaemonInnerLogger(logger, logging.ERROR)
+        sys.stderr = self.SimpleDaemonInnerLogger(logger, logging.ERROR)
 
 
 
 
 class SimpleDaemon(object):
-    debug = False
+    debug = True
+
+    @property
+    def windows(self):
+        return True if os.name == "nt" else False
 
     def __init__(self, name):
         self.name = name
+        if self.windows:
+            self.varPath = "c:\\temp"
+        else:
+            self.varPath = "/var"
+
+
         self.pidFileName = "{name}.pid".format(name=self.name)
-
-        self.pidPath = "/var/run/{fileName}".format(fileName=self.pidFileName)
-
         self.logFileName = "{name}.log".format(name=self.name)
-        self.logPath = "/var/log/{fileName}".format(fileName=self.logFileName)
+
+        self.pidPath = os.path.join(self.varPath, "run", self.pidFileName)
+        self.logPath = os.path.join(self.varPath, "log", self.logFileName)
+
+        if self.debug:
+            print "pidPath:", self.pidPath
+            print "logPath:", self.logPath
+
 
         if not self.debug:
-            self.createLogger()
-
-    def createLogger(self):
-        self.logger = SimpleDaemonLogger(self.logPath)
+            self.logger = SimpleDaemonLogger(self.logPath)
 
     def __enter__(self):
-        print "create pidfile..."
+        if os.path.isfile(self.pidPath):
+            return False
+        else:
+            if not os.path.exists(os.path.dirname(self.pidPath)):
+                os.makedirs(os.path.dirname(self.pidPath))
+
+            pid = os.getpid()
+            fd = open(self.pidPath, "w")
+            fd.write(unicode(pid))
+            fd.close()
+
+        return self
 
     def __exit__(self, type, value, traceback):
-        print "delete pidfile"
+        print "dlökjfldfkj"
+        print type
 
 
 
@@ -71,6 +98,7 @@ class SimpleDaemon(object):
 
 if __name__ == '__main__':
     with SimpleDaemon("test") as daemon:
+        print daemon
         print "running"
 
 
