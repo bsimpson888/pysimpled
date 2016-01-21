@@ -5,8 +5,12 @@ import logging.handlers
 import os
 
 import sys
+import platform
+
+import time
 
 __author__ = 'Marco Bartel'
+
 
 class SimpleDaemonException(Exception):
     def __init__(self, *args, **kwargs):
@@ -43,23 +47,17 @@ class SimpleDaemonLogger(object):
         sys.stderr = self.SimpleDaemonInnerLogger(logger, logging.ERROR)
 
 
-
-
 class SimpleDaemon(object):
-    debug = True
+    debug = False
 
     @property
     def windows(self):
-        return True if os.name == "nt" else False
+        return True if platform.system().lower() == "windows" else False
 
     def __init__(self, name):
         self.name = name
-        if self.windows:
-            self.varPath = "c:\\temp"
-        else:
-            self.varPath = "/var"
 
-
+        self.varPath = "c:\\temp" if self.windows else "/var"
         self.pidFileName = "{name}.pid".format(name=self.name)
         self.logFileName = "{name}.log".format(name=self.name)
 
@@ -70,35 +68,36 @@ class SimpleDaemon(object):
             print "pidPath:", self.pidPath
             print "logPath:", self.logPath
 
-
         if not self.debug:
             self.logger = SimpleDaemonLogger(self.logPath)
 
     def __enter__(self):
-        if os.path.isfile(self.pidPath):
-            return False
-        else:
-            if not os.path.exists(os.path.dirname(self.pidPath)):
-                os.makedirs(os.path.dirname(self.pidPath))
-
-            pid = os.getpid()
-            fd = open(self.pidPath, "w")
-            fd.write(unicode(pid))
-            fd.close()
-
+        self.checkPidFile()  # exit if exists
+        self.createPidFile()  # create PID file
         return self
 
     def __exit__(self, type, value, traceback):
-        print "dlökjfldfkj"
-        print type
+        self.removePidFile()
 
 
+    def createPidFile(self):
+        if not os.path.exists(os.path.dirname(self.pidPath)):
+            os.makedirs(os.path.dirname(self.pidPath))
+        pid = os.getpid()
+        fd = open(self.pidPath, "w")
+        fd.write(unicode(pid))
+        fd.close()
 
+    def checkPidFile(self):
+        if os.path.isfile(self.pidPath):
+            print "PID File exists already. Exiting..."
+            sys.exit()
+
+    def removePidFile(self):
+        if os.path.isfile(self.pidPath):
+            os.remove(self.pidPath)
 
 
 if __name__ == '__main__':
     with SimpleDaemon("test") as daemon:
-        print daemon
-        print "running"
-
-
+        time.sleep(10)
