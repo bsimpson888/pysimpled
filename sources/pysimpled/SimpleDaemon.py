@@ -50,14 +50,14 @@ class SimpleDaemonLogger(object):
 class SimpleDaemon(object):
     debug = False
 
-    @property
-    def windows(self):
+    def isWindows(self):
         return True if platform.system().lower() == "windows" else False
 
     def __init__(self, name):
         self.name = name
+        self._pid = os.getpid()
 
-        self.varPath = "c:\\temp" if self.windows else "/var"
+        self.varPath = "c:\\temp" if self.isWindows() else "/var"
         self.pidFileName = "{name}.pid".format(name=self.name)
         self.logFileName = "{name}.log".format(name=self.name)
 
@@ -71,6 +71,9 @@ class SimpleDaemon(object):
         if not self.debug:
             self.logger = SimpleDaemonLogger(self.logPath)
 
+    def pid(self):
+        return self._pid
+
     def __enter__(self):
         self.checkPidFile()  # exit if exists
         self.createPidFile()  # create PID file
@@ -83,9 +86,8 @@ class SimpleDaemon(object):
     def createPidFile(self):
         if not os.path.exists(os.path.dirname(self.pidPath)):
             os.makedirs(os.path.dirname(self.pidPath))
-        pid = os.getpid()
         fd = open(self.pidPath, "w")
-        fd.write(unicode(pid))
+        fd.write(unicode(self.pid()))
         fd.close()
 
     def checkPidFile(self):
@@ -99,5 +101,6 @@ class SimpleDaemon(object):
 
 
 if __name__ == '__main__':
-    with SimpleDaemon("test") as daemon:
-        time.sleep(10)
+    SimpleDaemon.debug = True
+    with SimpleDaemon("test") as testDaemon:
+        print testDaemon.pid()
