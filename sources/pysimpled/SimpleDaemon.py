@@ -152,9 +152,3 @@ class SimpleDaemon(object):
             os.remove(self.pidPath)
 
 
-if __name__ == '__main__':
-    with SimpleLogger('c:\\temp\\SimpleDaemon\\test.log', both=True):
-        with SimplePid('c:\\temp\\SimpleDaemon\\test.lock'):
-            time.sleep(10)
-            print "hello"
-            error()
