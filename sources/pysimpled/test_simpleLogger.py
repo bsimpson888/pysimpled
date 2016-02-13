@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import time
 
-from sources.pysimpled.SimpleDaemon import SimpleLogger, SimplePid
+from pysimpled import SimpleLogger, SimplePid
 
 
 class TestSimpleLogger(TestCase):
