@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='pysimpled',
-    version='1.0.0',
+    version='1.0.1',
     package_dir={'pysimpled': "sources/pysimpled"},
     packages=['pysimpled'],
     url='https://github.com/bsimpson888/pysimpled',
