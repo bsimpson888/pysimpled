@@ -1,0 +1,13 @@
+Source: pysimpled
+Maintainer: Marco Bartel <bsimpson888@gmail.com>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python-all (>= 2.6.6-3), debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/bsimpson888/pysimpled
+
+Package: python-pysimpled
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Simple to use context managers for server side scripts like
+

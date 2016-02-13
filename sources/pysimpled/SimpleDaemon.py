@@ -3,12 +3,8 @@
 import logging
 import logging.handlers
 import os
-
-import sys
 import platform
-
-
-import time
+import sys
 
 __author__ = 'Marco Bartel'
 
@@ -29,11 +25,10 @@ class SimpleLogger(object):
         def write(self, message):
             # Only log if there is a message (not just a new line)
             if self.both:
-                    self.oldstream.write(message)
+                self.oldstream.write(message)
 
             if message.rstrip() != "":
                 self.logger.log(self.level, message.rstrip())
-
 
     def __init__(self, logPath, both=False):
 
@@ -62,6 +57,7 @@ class SimpleLogger(object):
         if type is None:
             sys.stdout = self.old_stdout
             sys.stderr = self.old_stderr
+
 
 class SimplePid(object):
     def __init__(self, pidPath):
@@ -150,5 +146,3 @@ class SimpleDaemon(object):
     def removePidFile(self):
         if os.path.isfile(self.pidPath):
             os.remove(self.pidPath)
-
-
