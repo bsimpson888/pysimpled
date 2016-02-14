@@ -83,12 +83,12 @@ class SimplePid(object):
         if not os.path.exists(os.path.dirname(self.pidPath)):
             os.makedirs(os.path.dirname(self.pidPath))
         fd = open(self.pidPath, "w")
-        fd.write(unicode(self.pid()))
+        fd.write(str(self.pid()))
         fd.close()
 
     def checkPidFile(self):
         if os.path.isfile(self.pidPath):
-            print "PID File exists already. Exiting..."
+            print("PID File exists already. Exiting...")
             sys.exit()
 
     def removePidFile(self):
@@ -114,8 +114,8 @@ class SimpleDaemon(object):
         self.logPath = os.path.join(self.varPath, "log", self.logFileName)
 
         if self.debug:
-            print "pidPath:", self.pidPath
-            print "logPath:", self.logPath
+            print("pidPath:", self.pidPath)
+            print("logPath:", self.logPath)
 
         if not self.debug:
             self.logger = SimpleLogger(self.logPath)
@@ -135,12 +135,12 @@ class SimpleDaemon(object):
         if not os.path.exists(os.path.dirname(self.pidPath)):
             os.makedirs(os.path.dirname(self.pidPath))
         fd = open(self.pidPath, "w")
-        fd.write(unicode(self.pid()))
+        fd.write(str(self.pid()))
         fd.close()
 
     def checkPidFile(self):
         if os.path.isfile(self.pidPath):
-            print "PID File exists already. Exiting..."
+            print("PID File exists already. Exiting...")
             sys.exit()
 
     def removePidFile(self):
